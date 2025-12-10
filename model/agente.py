@@ -140,10 +140,16 @@ def generate_response(
         )
 
         # El SDK puede devolver un objeto complejo; intentar extraer `text`.
-        return getattr(response, 'text', str(response))
+        response_text = getattr(response, 'text', None)
+        
+        if not response_text:
+            logger.warning(f'Respuesta vacía del modelo: {response}')
+            raise RuntimeError('El modelo generó una respuesta vacía')
+        
+        return response_text
 
-    except Exception:
+    except Exception as e:
         # Registrar excepción completa para facilitar la depuración en servidor.
-        logger.exception('Error al generar respuesta desde el modelo generativo')
+        logger.exception(f'Error al generar respuesta desde el modelo generativo: {str(e)}')
         # Lanzar un error genérico hacia capas superiores para que lo manejen.
         raise RuntimeError('Error al generar la respuesta del asistente')
