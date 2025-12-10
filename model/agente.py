@@ -128,6 +128,8 @@ def generate_response(
         # Actualmente se envía solo el texto del último mensaje; si se desea
         # enviar todo el contexto, adaptar esta llamada según la API del SDK.
         prompt_text = messages[-1]['parts'][0]
+        
+        logger.debug(f'Enviando prompt al modelo {model_name}: {prompt_text[:100]}...')
 
         response = model.generate_content(
             prompt_text,
@@ -140,16 +142,32 @@ def generate_response(
         )
 
         # El SDK puede devolver un objeto complejo; intentar extraer `text`.
-        response_text = getattr(response, 'text', None)
+        if response is None:
+            logger.error('El modelo retornó None')
+            raise RuntimeError('El modelo generó una respuesta nula')
         
-        if not response_text:
-            logger.warning(f'Respuesta vacía del modelo: {response}')
+        # Verificar si hay atributo 'text'
+        if not hasattr(response, 'text'):
+            logger.error(f'Respuesta sin atributo text: {type(response).__name__}. Contenido: {response}')
+            raise RuntimeError('Formato de respuesta inválido del modelo')
+        
+        response_text = response.text
+        
+        if not response_text or not str(response_text).strip():
+            logger.warning(f'Respuesta vacía o en blanco del modelo. Objeto respuesta: {response}')
             raise RuntimeError('El modelo generó una respuesta vacía')
         
+        logger.debug(f'Respuesta generada exitosamente: {str(response_text)[:100]}...')
         return response_text
 
+    except (ValueError, RuntimeError) as e:
+        # Re-lanzar errores de validación como están
+        logger.error(f'Error de validación: {str(e)}')
+        raise
     except Exception as e:
         # Registrar excepción completa para facilitar la depuración en servidor.
-        logger.exception(f'Error al generar respuesta desde el modelo generativo: {str(e)}')
+        error_type = type(e).__name__
+        error_msg = str(e)
+        logger.exception(f'Error inesperado ({error_type}) al generar respuesta: {error_msg}')
         # Lanzar un error genérico hacia capas superiores para que lo manejen.
-        raise RuntimeError('Error al generar la respuesta del asistente')
+        raise RuntimeError(f'Error al generar la respuesta del asistente: {error_type}')
