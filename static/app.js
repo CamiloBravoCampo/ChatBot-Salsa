@@ -31,7 +31,7 @@ class Chat {
 
         const content = document.createElement('div');
         content.className = 'message-content';
-        content.textContent = text;
+        content.innerHTML = marked.parse(text);
 
         msg.appendChild(avatar);
         msg.appendChild(content);
