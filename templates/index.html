@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente IA</title>
+    <title>Salsa Maestro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div class="container">
+        <header class="header">
+            <h1>Salsa Maestro</h1>
+            <p class="subtitle">Tu asistente de música y salsa</p>
+        </header>
+
+        <div class="chat-area">
+            <div class="messages" id="messagesContainer">
+                <div class="welcome">
+                    <h2>Hola, ¿en qué te puedo ayudar?</h2>
+                    <p>Soy tu asistente especializado en música y salsa. Pregúntame lo que necesites saber.</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <form id="chatForm">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Escribe tu pregunta..."
+                        autocomplete="off"
+                    >
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© Salsa Maestro - Asistente de Música</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
